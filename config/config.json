@@ -2,14 +2,14 @@
   "development": {
     "username": "postgres",
     "password": "postgres",
-    "database": "ecommerceport_dev",
+    "database": "ecommerce_dev",
     "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
     "password": "postgres",
-    "database": "ecommerceport_test",
+    "database": "ecommerce_test",
     "host": "localhost",
     "dialect": "postgres"
   },

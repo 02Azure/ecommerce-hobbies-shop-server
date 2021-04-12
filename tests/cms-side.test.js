@@ -357,7 +357,7 @@ describe("Failed Create a new product - validation error: name is empty ==> POST
   })
 })
 
-describe("Failed Create a new product - validation error: stock and price is not a positive number ==> POST /products", () => {
+describe("Failed Create a new product - validation error: stock and price is a negative number ==> POST /products", () => {
   test("Responds with json {error: message}", done => {
     return request(app)
       .post("/products")
@@ -371,8 +371,8 @@ describe("Failed Create a new product - validation error: stock and price is not
         expect(status).toBe(401)
         expect(body).toEqual({error:
           [
-            "Price must be a positive number",
-            "Stock must be a positive number"
+            "Price must be 0 or a positive number",
+            "Stock must be 0 or a positive number"
           ]
         })
         done()
@@ -470,8 +470,8 @@ describe("Failed Update product details - validation error: stock and price is n
         expect(status).toBe(401)
         expect(body).toEqual({error:
           [
-            "Price must be a positive number",
-            "Stock must be a positive number"
+            "Price must be 0 or a positive number",
+            "Stock must be 0 or a positive number"
           ]
         })
         done()
@@ -499,7 +499,7 @@ describe("Failed Create a new product - validation error: image_url is not url a
         expect(body).toEqual({error:
           [
             "image_url must be an URL link",
-            "Price must be a positive number"
+            "Price must be 0 or a positive number"
           ]
         })
         done()
