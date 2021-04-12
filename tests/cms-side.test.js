@@ -68,10 +68,10 @@ let validEditProduct = {
 let prodId = 1
 // ================================ SUCCESS CASE =======================================
 //LOGIN CASE
-describe("User (admin) login ==> POST /adminlogin ", () => {
+describe("User (admin) login ==> POST /login ", () => {
   test("Responds with json: { username, access_token } ", done => {
     return request(app)
-      .post("/adminlogin")
+      .post("/login")
       .set("Accept", "application/json")
       .send(validUserAdmin) //req.body
 
@@ -223,10 +223,10 @@ describe("Delete a product ==> DELETE /products/:id", () => {
 
 // ================================ FAILED CASE =======================================
 // LOGIN CASE
-describe("Failed User (admin) login - wrong password ==> POST /adminlogin ", () => {
+describe("Failed User (admin) login - wrong password ==> POST /login ", () => {
   test("Responds with json: { error: message } ", done => {
     return request(app)
-      .post("/adminlogin")
+      .post("/login")
       .set("Accept", "application/json")
       .send(wrongPassword)
 
@@ -245,10 +245,10 @@ describe("Failed User (admin) login - wrong password ==> POST /adminlogin ", () 
 })
 
 
-describe("Failed User (admin) login - username is not found in db ==> POST /adminlogin ", () => {
+describe("Failed User (admin) login - username is not found in db ==> POST /login ", () => {
   test("Responds with json: { error: message } ", done => {
     return request(app)
-      .post("/adminlogin")
+      .post("/login")
       .set("Accept", "application/json")
       .send(nonExistent)
 
@@ -266,10 +266,10 @@ describe("Failed User (admin) login - username is not found in db ==> POST /admi
   })
 })
 
-describe("Failed User (admin) login - username and/or password is empty or null ==> POST /adminlogin ", () => {
+describe("Failed User (admin) login - username and/or password is empty or null ==> POST /login ", () => {
   test("Responds with json: { error: message } ", done => {
     return request(app)
-      .post("/adminlogin")
+      .post("/login")
       .set("Accept", "application/json")
       .send(emptyOrNull) 
 
