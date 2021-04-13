@@ -41,8 +41,11 @@ module.exports = (sequelize, DataTypes) => {
         notNull: {
           msg: "Please fill product's price"
         },
+        isNumeric: {
+          msg: "Price must be 0 or a positive number"
+        },
         min: {
-          args: 0,
+          args: [0],
           msg: "Price must be 0 or a positive number"
         }
       } 
@@ -54,8 +57,11 @@ module.exports = (sequelize, DataTypes) => {
         notNull: {
           msg: "Please fill product's stock"
         },
+        isNumeric: {
+          msg: "Price must be 0 or a positive number"
+        },
         min: {
-          args: 0,
+          args: [0],
           msg: "Stock must be 0 or a positive number"
         }
       } 

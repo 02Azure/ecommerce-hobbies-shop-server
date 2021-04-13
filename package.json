@@ -4,8 +4,8 @@
   "description": "API yang berisikan endpoint yang akan dihit oleh CMS dan customer web",
   "main": "app.js",
   "scripts": {
-    "dev": "SET NODE_ENV=development&& npx nodemon",
-    "test": "jest",
+    "dev": "SET NODE_ENV=development&& npx nodemon ./bin/server",
+    "test": "jest --detectOpenHandles --forceExit --runInBand",
     "start": "node app.js"
   },
   "repository": {

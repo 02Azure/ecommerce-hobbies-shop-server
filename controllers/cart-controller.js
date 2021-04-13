@@ -30,7 +30,7 @@ class CartController {
     let input = {
       UserId: req.user.id,
       ProductId: req.body.ProductId,
-      quantity: req.body.quantity
+      quantity: +req.body.quantity
     }
     //find dulu cari apakah sudah ada cart dengan product id dan user id yang sama
 
@@ -44,7 +44,7 @@ class CartController {
 
       if(foundCart) {
         req.params.id = foundCart.id
-        req.body.quantity = foundCart.quantity + input.quantity
+        req.body.quantity = +foundCart.quantity + +input.quantity
         this.update(req, res, next)
 
       } else {
@@ -62,7 +62,7 @@ class CartController {
 
   static async update(req, res, next) {
     let input = {
-      quantity: req.body.quantity
+      quantity: +req.body.quantity
     }
 
     try {

@@ -1,6 +1,8 @@
 const router = require("express").Router()
 const ProductController = require("../controllers/product-controller")
+const adminAuthorization = require("../middlewares/admin-authorization")
 
+router.use(adminAuthorization)
 router.get("/", ProductController.showAll)
 router.post("/", ProductController.add)
 router.get("/:id", ProductController.showOne)

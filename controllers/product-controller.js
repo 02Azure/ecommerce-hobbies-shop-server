@@ -16,8 +16,8 @@ class ProductController {
     let input = {
       name: req.body.name,
       image_url: req.body.image_url,
-      price: req.body.price,
-      stock: req.body.stock,
+      price: +req.body.price,
+      stock: +req.body.stock,
       category: req.body.category,
       detail: req.body.detail
     }
@@ -34,7 +34,7 @@ class ProductController {
 
   static async showOne(req, res, next) {
     try {
-      let foundProduct = Product.findByPk(+req.params.id)
+      let foundProduct = await Product.findByPk(+req.params.id)
 
       if(!foundProduct) throw {name: "ProductNotFound"}
 
@@ -50,14 +50,14 @@ class ProductController {
     let input = {
       name: req.body.name,
       image_url: req.body.image_url,
-      price: req.body.price,
-      stock: req.body.stock,
+      price: +req.body.price,
+      stock: +req.body.stock,
       category: req.body.category,
       detail: req.body.detail
     }
 
     try {
-      let updatedProduct = Product.update(input, {
+      let updatedProduct = await Product.update(input, {
         where: {
           id: +req.params.id
         },

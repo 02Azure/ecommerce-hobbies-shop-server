@@ -1,29 +1,81 @@
 const request = require("supertest")
 const app = require("../app")
+const jwt = require("jsonwebtoken")
+const {sequelize} = require("../models")
+const {queryInterface} = sequelize
+const hashPassword = require("../helpers/password-hasher")
+//PENTING: remove contraint dulu jika baru pertama kali di migrate di db test
 
-// VAR FOR INPUT==================================
-let validUserAdmin = {
-  username: "lilynano",
-  password: "lilily"
-}
+beforeAll(() => {
+  return queryInterface.removeConstraint('Carts', "fkeycart2user", {})
 
-let wrongPassword = {
-  username: "lilynano",
-  password: "wrongpass"
-}
+  .then(() => {
+    return queryInterface.removeConstraint('Carts', "fkeycart2product", {})
+  })
 
-let nonExistent = {
-  username: "nonexistentuser",
-  password: "anything"
-}
+  .then(() => {
+    return queryInterface.bulkDelete("Users", null, {truncate: true, restartIdentity: true})
+  })
 
-let emptyOrNull = {
-  username: "",
-  password: ""
-}
+  .then(() => {
+    return queryInterface.bulkInsert("Users", [
+      {
+        username: "lilynano",
+        email: "lilynano@mail.com",
+        password: hashPassword("lilily"),
+        role: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        username: "otong322",
+        email: "otong@mail.com",
+        password: hashPassword("pass123"),
+        role: "customer",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ])
+  })
 
-let validAdminToken = "" //valid admin user accesstoken (lily)
-let nonAdminToken = "" //valid token but not an admin user
+  .then(() => {
+    return queryInterface.bulkDelete("Products", null, {truncate: true, restartIdentity: true})
+  })
+
+  .then(() => {
+    return queryInterface.bulkInsert("Products", [
+      {
+        name: "Raigeki LOB SR unlimited",
+        image_url: "https://i.imgur.com/47TZSQe.jpg",
+        price: 280000,
+        stock: 3,
+        category: "single",
+        detail: "Near Mint condition",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        name: "Pokeball Leather Deck Case",
+        image_url: "https://i.imgur.com/IfY0Mj2.jpg",
+        price: 80000,
+        stock: 9,
+        category: "accessory",
+        detail: "High quality deckbox that is enough for 100 large-sized TCG",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ])
+  })
+
+  .catch(err => {
+    console.log(err)
+  })
+
+})
+
+// VAR FOR INPUT==================================				
+let validAdminToken = jwt.sign({id: 1, username: "lilynano"}, process.env.SECRET_CODE || "secret") //valid admin user accesstoken (lily)
+let nonAdminToken = jwt.sign({id: 2, username: "otong322"}, process.env.SECRET_CODE || "secret") //valid token but not an admin user (otong)
 
 let validCreateProduct = { //example valid product
   name: "smartpon galaksi syamsyung S322",
@@ -66,34 +118,8 @@ let validEditProduct = {
 }
 
 let prodId = 1
+let deletedProdId = 2
 // ================================ SUCCESS CASE =======================================
-//LOGIN CASE
-describe("User (admin) login ==> POST /login ", () => {
-  test("Responds with json: { username, access_token } ", done => {
-    return request(app)
-      .post("/login")
-      .set("Accept", "application/json")
-      .send(validUserAdmin) //req.body
-
-      .then(response => {
-        let {status, body} = response
-
-        expect(status).toBe(200)
-        expect(body).toEqual(
-          {
-            username: expect.any(String),
-            access_token: expect.any(String)
-          }
-        )
-        done()
-      })
-
-      .catch(err => {
-        console.log(err)
-      })
-  })
-})
-
 // GET ALL PRODUCTS CASE
 describe("Shows all products ==> GET /products", () => {
   test("Responds with json: array of the product ", done => {
@@ -127,7 +153,7 @@ describe("Create a new product ==> POST /products", () => {
 
       .then(response => {
         let {status, body} = response
-        let {name, image_url, price, stock, category} = input
+        let {name, image_url, price, stock, category} = validCreateProduct
 
         expect(status).toBe(201)
         expect(body).toHaveProperty("name", name)
@@ -148,7 +174,7 @@ describe("Create a new product ==> POST /products", () => {
 describe("Show one product ==> GET /products/:id", () => {
   test("Responds with json: object of a product with matched Id ( at least ) { name, image_url, price, stock, category } ", done => {
     return request(app)
-      .get(`/products/${prodId}`)
+      .get(`/products/2`)
       .set("Accept", "application/json")
       .set("access_token", validAdminToken)
 
@@ -156,11 +182,12 @@ describe("Show one product ==> GET /products/:id", () => {
         let {status, body} = response
 
         expect(status).toBe(200)
-        expect(body).toHaveProperty("name", expect.any(String))
-        expect(body).toHaveProperty("image_url", expect.any(String))
-        expect(body).toHaveProperty("price", expect.any(Number))
-        expect(body).toHaveProperty("stock", expect.any(Number))
-        expect(body).toHaveProperty("category", expect.any(String))
+        expect(body).toHaveProperty("name", "Pokeball Leather Deck Case")
+        expect(body).toHaveProperty("image_url", "https://i.imgur.com/IfY0Mj2.jpg")
+        expect(body).toHaveProperty("price", 80000)
+        expect(body).toHaveProperty("stock", 9)
+        expect(body).toHaveProperty("category", "accessory")
+        expect(body).toHaveProperty("detail", "High quality deckbox that is enough for 100 large-sized TCG")
         done()
       })
 
@@ -174,16 +201,17 @@ describe("Show one product ==> GET /products/:id", () => {
 describe("Update product details: name/image/price/stock/category ==> PUT /products/:id", () => {
   test("Responds with json: object of a product with updated details ( at least ) { name, image_url, price, stock, category } ", done => {
     return request(app)
-      .put(`/products/${prodId}`)
+      .put(`/products/2`)
       .set("Accept", "application/json")
       .set("access_token", validAdminToken)
       .send(validEditProduct)
 
       .then(response => {
         let {status, body} = response
-        let {name, image_url, price, stock, category} = input
+        let {name, image_url, price, stock, category} = validEditProduct
         
         expect(status).toBe(200)
+
         expect(body).toHaveProperty("name", name)
         expect(body).toHaveProperty("image_url", image_url)
         expect(body).toHaveProperty("price", price)
@@ -222,71 +250,6 @@ describe("Delete a product ==> DELETE /products/:id", () => {
 })
 
 // ================================ FAILED CASE =======================================
-// LOGIN CASE
-describe("Failed User (admin) login - wrong password ==> POST /login ", () => {
-  test("Responds with json: { error: message } ", done => {
-    return request(app)
-      .post("/login")
-      .set("Accept", "application/json")
-      .send(wrongPassword)
-
-      .then(response => {
-        let {status, body} = response
-
-        expect(status).toBe(400)
-        expect(body).toEqual({error: "Incorrect Username or Password"})
-        done()
-      })
-
-      .catch(err => {
-        console.log(err)
-      })
-  })
-})
-
-
-describe("Failed User (admin) login - username is not found in db ==> POST /login ", () => {
-  test("Responds with json: { error: message } ", done => {
-    return request(app)
-      .post("/login")
-      .set("Accept", "application/json")
-      .send(nonExistent)
-
-      .then(response => {
-        let {status, body} = response
-
-        expect(status).toBe(400)
-        expect(body).toEqual({error: "Incorrect Username or Password"})
-        done()
-      })
-
-      .catch(err => {
-        console.log(err)
-      })
-  })
-})
-
-describe("Failed User (admin) login - username and/or password is empty or null ==> POST /login ", () => {
-  test("Responds with json: { error: message } ", done => {
-    return request(app)
-      .post("/login")
-      .set("Accept", "application/json")
-      .send(emptyOrNull) 
-
-      .then(response => {
-        let {status, body} = response
-
-        expect(status).toBe(400)
-        expect(body).toEqual({error: "Please fill both of the fields"})
-        done()
-      })
-
-      .catch(err => {
-        console.log(err)
-      })
-  })
-})
-
 // CREATE PRODUCT CASE
 describe("Failed Create a new product - no access_token ==> POST /products", () => {
   test("Responds with json {error: message}", done => {
@@ -342,12 +305,8 @@ describe("Failed Create a new product - validation error: name is empty ==> POST
       .then(response => {
         let {status, body} = response
 
-        expect(status).toBe(401)
-        expect(body).toEqual({error:
-          [
-            "Product name can't be empty"
-          ]
-        })
+        expect(status).toBe(400)
+        expect(body.error).toContain("Product name can't be empty")
         done()
       })
 
@@ -368,13 +327,9 @@ describe("Failed Create a new product - validation error: stock and price is a n
       .then(response => {
         let {status, body} = response
 
-        expect(status).toBe(401)
-        expect(body).toEqual({error:
-          [
-            "Price must be 0 or a positive number",
-            "Stock must be 0 or a positive number"
-          ]
-        })
+        expect(status).toBe(400)
+        expect(body.error).toContain("Price must be 0 or a positive number")
+        expect(body.error).toContain("Stock must be 0 or a positive number")
         done()
       })
 
@@ -396,13 +351,9 @@ describe("Failed Create a new product - validation error: image_url is not url a
       .then(response => {
         let {status, body} = response
 
-        expect(status).toBe(401)
-        expect(body).toEqual({error:
-          [
-            "image_url must be an URL link",
-            "Price must be a positive number"
-          ]
-        })
+        expect(status).toBe(400)
+        expect(body.error).toContain("image_url must be an URL link")
+        expect(body.error).toContain("Price must be 0 or a positive number")
         done()
       })
 
@@ -416,7 +367,7 @@ describe("Failed Create a new product - validation error: image_url is not url a
 describe("Failed Update product details - no access_token ==> PUT /products/:id", () => {
   test("Responds with json: {error: message}", done => {
     return request(app)
-      .put(`/products/${prodId}`)
+      .put(`/products/2`)
       .set("Accept", "application/json")
       .send(validEditProduct)
 
@@ -459,7 +410,7 @@ describe("Failed Update product details - valid token but not an admin user ==> 
 describe("Failed Update product details - validation error: stock and price is not a positive number ==> PUT /products/:id", () => {
   test("Responds with json {error: message}", done => {
     return request(app)
-      .put(`/products/${prodId}`)
+      .put(`/products/1`)
       .set("Accept", "application/json")
       .set("access_token", validAdminToken)
       .send(negativePriceStock)
@@ -467,13 +418,9 @@ describe("Failed Update product details - validation error: stock and price is n
       .then(response => {
         let {status, body} = response
 
-        expect(status).toBe(401)
-        expect(body).toEqual({error:
-          [
-            "Price must be 0 or a positive number",
-            "Stock must be 0 or a positive number"
-          ]
-        })
+        expect(status).toBe(400)
+        expect(body.error).toContain("Price must be 0 or a positive number")
+        expect(body.error).toContain("Stock must be 0 or a positive number")
         done()
       })
 
@@ -487,7 +434,7 @@ describe("Failed Update product details - validation error: stock and price is n
 describe("Failed Create a new product - validation error: image_url is not url and price is not a positive number ==>  PUT /products/:id", () => {
   test("Responds with json {error: message}", done => {
     return request(app)
-      .put(`/products/${prodId}`)
+      .put(`/products/1`)
       .set("Accept", "application/json")
       .set("access_token", validAdminToken)
       .send(nonURLnonNumberPrice)
@@ -495,13 +442,9 @@ describe("Failed Create a new product - validation error: image_url is not url a
       .then(response => {
         let {status, body} = response
 
-        expect(status).toBe(401)
-        expect(body).toEqual({error:
-          [
-            "image_url must be an URL link",
-            "Price must be 0 or a positive number"
-          ]
-        })
+        expect(status).toBe(400)
+        expect(body.error).toContain("image_url must be an URL link")
+        expect(body.error).toContain("Price must be 0 or a positive number")
         done()
       })
 
@@ -515,7 +458,7 @@ describe("Failed Create a new product - validation error: image_url is not url a
 describe("Failed Delete a product - no access_token ==> DELETE /products/:id", () => {
   test("Responds with json: {error: message}", done => {
     return request(app)
-      .delete(`/products/${prodId}`)
+      .delete(`/products/1`)
       .set("Accept", "application/json")
 
       .then(response => {
@@ -535,7 +478,7 @@ describe("Failed Delete a product - no access_token ==> DELETE /products/:id", (
 describe("Failed Delete a product details - valid token but not an admin user ==> DELETE /products/:id", () => {
   test("Responds with json: {error: message}", done => {
     return request(app)
-      .delete(`/products/${prodId}`)
+      .delete(`/products/1`)
       .set("Accept", "application/json")
       .set("access_token", nonAdminToken)
 

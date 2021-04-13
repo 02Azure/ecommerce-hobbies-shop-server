@@ -9,9 +9,9 @@ class IndexController {
       password: req.body.password
     }
 
-    if(!input.username || !input.password) throw {name: "FalsyUsernameOrPassword"}
-
     try {
+      if(!input.username || !input.password) throw {name: "FalsyUsernameOrPassword"}
+
 			let user = await User.findOne({
 				where: {
 					username: input.username
