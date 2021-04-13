@@ -1,6 +1,6 @@
 function errorHandler(err, req, res, next) {
-  // console.log(">>>>>>>>>>>", err.name)
-  // console.log(err, "<<<<<<<<<<<<<")
+  console.log(">>>>>>>>>>>", err.name)
+  console.log(err, "<<<<<<<<<<<<<")
   let code = 500
   let message = "Internal Server Error"
 
@@ -16,9 +16,21 @@ function errorHandler(err, req, res, next) {
     code = 400
     message = err.errors.map(validationError => validationError.message)
 
+  } else if(err.name === "SequelizeUniqueConstraintError") {
+    code = 400
+    message = "This username or email is already registered"
+
   } else if(err.name === "ProductNotFound") {
     code = 404
-    message = `Product with id ${req.params.id} is not found` 
+    message = `Product with this id is not found` 
+
+  } else if(err.name === "CartNotFound") {
+    code = 404
+    message = `Cart with this product id is not found` 
+
+  } else if(err.name === "InvalidQuantity") {
+    code = 400
+    message = `You can't have a quantity with more than product's stock value` 
 
   } else if(err.name === "InvalidAccessToken" || err.name === "JsonWebTokenError") {
     code = 401

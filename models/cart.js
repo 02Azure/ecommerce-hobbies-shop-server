@@ -15,7 +15,19 @@ module.exports = (sequelize, DataTypes) => {
   };
   Cart.init({
     UserId: DataTypes.INTEGER,
-    ProductId: DataTypes.INTEGER,
+    ProductId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Please fill a product that you want to add"
+        },
+        isNumeric: {
+          msg: "Please fill this field with a product's Id"
+        }
+      } 
+    },
+
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,

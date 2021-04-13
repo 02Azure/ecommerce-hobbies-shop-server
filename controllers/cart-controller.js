@@ -1,10 +1,17 @@
-const {Cart} = require("../models")
+const {User, Cart, Product} = require("../models")
 
 class CartController {
   static async showAll(req, res, next) {
     try {
-      let carts = await Cart.findAll()
-      res.status(200).json(carts)
+      let user = await User.findByPk(+req.user.id, {
+        include: {
+          model: Product,
+          through: {
+            attributes: ["quantity"]
+          }
+        }
+      })
+      res.status(200).json(user.Products)
     }
 
     catch(err) {
@@ -12,47 +19,57 @@ class CartController {
     }
   }
 
-  static async showOne(req, res, next) {
-    try {
-      let foundCart = Cart.findByPk(+req.params.id)
+  // static async showOne(req, res, next) {
+  //   try {
+  //     let foundCart = Cart.findByPk(+req.params.id)
 
-      if(!foundCart) throw {name: "CartNotFound"}
+  //     if(!foundCart) throw {name: "CartNotFound"}
 
-      res.status(200).json(foundCart)
-    }
+  //     res.status(200).json(foundCart)
+  //   }
 
-    catch(err) {
-      next(err)
-    }
-  }
+  //   catch(err) {
+  //     next(err)
+  //   }
+  // }
 
   static async add(req, res, next) {
     let input = {
-      UserId: req.user.id,
-      ProductId: req.body.ProductId,
+      UserId: +req.user.id,
+      ProductId: +req.body.ProductId,
       quantity: +req.body.quantity
     }
-    //find dulu cari apakah sudah ada cart dengan product id dan user id yang sama
 
     try {
-      let foundCart = await Cart.findOne({
-        where: {
-          UserId: input.UserId,
-          ProductId: input.ProductId
+      //cek apakah produk yang mau di add itu eksis di db
+      let product = await Product.findByPk(input.ProductId)
+
+      if(!product) throw {name: "ProductNotFound"}
+
+      //cek apakah user tersebut sudah memiliki product dengan id tersebut
+      let user = await User.findByPk(+req.user.id, {
+        include: {
+          model: Product,
+          where: {
+            id: input.ProductId
+          }
         }
       })
 
-      if(foundCart) {
-        req.params.id = foundCart.id
-        req.body.quantity = +foundCart.quantity + +input.quantity
-        this.update(req, res, next)
+      //jika sudah ada, 
+      if(user) {
+        req.body.quantity = +user.Products[0].Cart.quantity + +input.quantity
+        req.body.ProductId = input.ProductId
+        CartController.editQuantity(req, res, next)
 
+      //jika tidak ada,
       } else {
-        //cek apakah melebihi stock product {}
+        //cek apakah input melebihi jumlah stock 
+        if(input.quantity > product.stock) throw {name: "InvalidQuantity"}
+        // jika tidak, buat cart baru
         let newCart = await Cart.create(input)
         res.status(201).json(newCart)
       }
-
     }
 
     catch(err) {
@@ -60,22 +77,41 @@ class CartController {
     }
   }
 
-  static async update(req, res, next) {
+  static async editQuantity(req, res, next) {
     let input = {
       quantity: +req.body.quantity
     }
 
     try {
-        //cek apakah melebihi stock product {}
-      let updatedCart = Cart.update(input, {
+      //cari cart milik user ini dengan idproduct ini
+      let foundCart = await Cart.findOne({
         where: {
-          id: +req.params.id
+          UserId: +req.user.id,
+          ProductId: +req.body.ProductId
+        }, 
+      })
+
+      // //jika belum ada cartnya, error
+      if(!foundCart) throw {name: "CartNotFound"}
+
+      //jika sudah ada
+      let product = await(Product.findOne({
+        where: {
+          id: foundCart.ProductId
+        }
+      }))
+
+      //cek apakah akan melebihi jumlah stock jika diubah ke input baru
+      if(input.quantity > product.stock) throw {name: "InvalidQuantity"}
+      
+      //jika quantity <= stock, maka baru update
+      let updatedCart = await Cart.update(input, {
+        where: {
+          UserId: +req.user.id,
+          ProductId: +req.body.ProductId
         },
         returning: true
       })
-
-      if(!updatedCart[0]) throw {name: "CartNotFound"}
-
       res.status(200).json(...updatedCart[1])
     }
 
@@ -88,12 +124,13 @@ class CartController {
     try {
       let deletedCart = await Cart.destroy({
         where: {
-          id: +req.params.id
+          UserId: +req.user.id,
+          ProductId: +req.body.ProductId
         }
       })
 
       if(!deletedCart) throw {name: "CartNotFound"} 
-      res.status(200).json({message: `Cart with Id ${req.params.id} has been successfully deleted`})
+      res.status(200).json({message: `Item has been successfully removed from your cart`})
     }
 
     catch(err) {
