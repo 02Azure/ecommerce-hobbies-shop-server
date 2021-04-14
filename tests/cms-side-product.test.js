@@ -4,22 +4,9 @@ const jwt = require("jsonwebtoken")
 const {sequelize} = require("../models")
 const {queryInterface} = sequelize
 const hashPassword = require("../helpers/password-hasher")
-//PENTING: remove contraint dulu jika baru pertama kali di migrate di db test
-//hapus / comment kedua remove constraint jika mau menjalankan tes kedua kalinya/seterusnya 
 
-beforeAll(() => {
-  return queryInterface.removeConstraint('Carts', "fkeycart2user", {})
-
-  .then(() => {
-    return queryInterface.removeConstraint('Carts', "fkeycart2product", {})
-  })
-
-  .then(() => {
-    return queryInterface.bulkDelete("Users", null, {truncate: true, restartIdentity: true})
-  })
-
-  .then(() => {
-    return queryInterface.bulkInsert("Users", [
+beforeAll(done => {
+  queryInterface.bulkInsert("Users", [
       {
         username: "lilynano",
         email: "lilynano@mail.com",
@@ -36,15 +23,10 @@ beforeAll(() => {
         createdAt: new Date(),
         updatedAt: new Date()
       }
-    ])
-  })
+  ])
 
   .then(() => {
-    return queryInterface.bulkDelete("Products", null, {truncate: true, restartIdentity: true})
-  })
-
-  .then(() => {
-    return queryInterface.bulkInsert("Products", [
+    queryInterface.bulkInsert("Products", [
       {
         name: "Raigeki LOB SR unlimited",
         image_url: "https://i.imgur.com/47TZSQe.jpg",
@@ -68,11 +50,31 @@ beforeAll(() => {
     ])
   })
 
-  .catch(err => {
-    console.log(err)
+  .then(() => {
+    done()
   })
 
+  .catch(err => {
+    done(err)
+  })
 })
+
+afterAll(done => {
+  queryInterface.bulkDelete("Users", null, {truncate: true, restartIdentity: true, cascade: true})
+
+  .then(() => {
+    queryInterface.bulkDelete("Products", null, {truncate: true, restartIdentity: true, cascade: true})
+  })
+
+  .then(() => {
+    done()
+  })
+
+  .catch(err => {
+    done(err)
+  })
+})
+
 
 // VAR FOR INPUT==================================				
 let validAdminToken = jwt.sign({id: 1, username: "lilynano"}, process.env.SECRET_CODE || "secret") //valid admin user accesstoken (lily)
@@ -118,8 +120,6 @@ let validEditProduct = {
   category: "gadget"
 }
 
-let prodId = 1
-let deletedProdId = 2
 // ================================ SUCCESS CASE =======================================
 // GET ALL PRODUCTS CASE
 describe("Shows all products ==> GET /products", () => {
@@ -138,7 +138,7 @@ describe("Shows all products ==> GET /products", () => {
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -166,7 +166,7 @@ describe("Create a new product ==> POST /products", () => {
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -193,7 +193,7 @@ describe("Show one product ==> GET /products/:id", () => {
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -222,7 +222,7 @@ describe("Update product details: name/image/price/stock/category ==> PUT /produ
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -231,13 +231,13 @@ describe("Update product details: name/image/price/stock/category ==> PUT /produ
 describe("Delete a product ==> DELETE /products/:id", () => {
   test("Responds with json: object of a product with updated details ( at least ) { name, image_url, price, stock, category } ", done => {
     return request(app)
-      .delete(`/products/${prodId}`)
+      .delete(`/products/1`)
       .set("Accept", "application/json")
       .set("access_token", validAdminToken)
       
       .then(response => {
         let {status, body} = response
-        let deleteSuccessfullMessage = `Product with Id ${prodId} has been successfully deleted`
+        let deleteSuccessfullMessage = `Product with Id 1 has been successfully deleted`
 
         expect(status).toBe(200)
         expect(body).toEqual({message: deleteSuccessfullMessage})
@@ -245,7 +245,7 @@ describe("Delete a product ==> DELETE /products/:id", () => {
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -268,7 +268,7 @@ describe("Failed Create a new product - no access_token ==> POST /products", () 
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -290,7 +290,7 @@ describe("Failed Create a new product - valid token but not an admin user ==> PO
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -312,7 +312,7 @@ describe("Failed Create a new product - validation error: name is empty ==> POST
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -335,7 +335,7 @@ describe("Failed Create a new product - validation error: stock and price is a n
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -359,7 +359,7 @@ describe("Failed Create a new product - validation error: image_url is not url a
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -381,7 +381,7 @@ describe("Failed Update product details - no access_token ==> PUT /products/:id"
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -389,7 +389,7 @@ describe("Failed Update product details - no access_token ==> PUT /products/:id"
 describe("Failed Update product details - valid token but not an admin user ==> PUT /products/:id", () => {
   test("Responds with json: {error: message}", done => {
     return request(app)
-      .put(`/products/${prodId}`)
+      .put(`/products/1`)
       .set("Accept", "application/json")
       .set("access_token", nonAdminToken)
       .send(validEditProduct)
@@ -403,7 +403,7 @@ describe("Failed Update product details - valid token but not an admin user ==> 
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -426,7 +426,7 @@ describe("Failed Update product details - validation error: stock and price is n
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -450,7 +450,7 @@ describe("Failed Create a new product - validation error: image_url is not url a
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -471,7 +471,7 @@ describe("Failed Delete a product - no access_token ==> DELETE /products/:id", (
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -492,7 +492,7 @@ describe("Failed Delete a product details - valid token but not an admin user ==
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
