@@ -25,34 +25,45 @@ let emptyOrNull = {
   password: ""
 }
 
-beforeAll(() => {
-  return queryInterface.bulkDelete("Users")
+beforeAll(done => {
+  queryInterface.bulkInsert("Users", [
+    {
+      username: "lilynano",
+      email: "lilynano@mail.com",
+      password: hashPassword("lilily"),
+      role: "admin",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      username: "otong322",
+      email: "otong@mail.com",
+      password: hashPassword("pass123"),
+      role: "customer",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ])
 
   .then(() => {
-    queryInterface.bulkInsert("Users", [
-      {
-        username: "lilynano",
-        email: "lilynano@mail.com",
-        password: hashPassword("lilily"),
-        role: "admin",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        username: "otong322",
-        email: "otong@mail.com",
-        password: hashPassword("pass123"),
-        role: "customer",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ])
+    done()
   })
 
   .catch(err => {
-    console.log(err)
+    done(err)
+  })
+})
+
+afterAll(done => {
+  queryInterface.bulkDelete("Users", null, {truncate: true, restartIdentity: true, cascade: true})
+
+  .then(() => {
+    done()
   })
 
+  .catch(err => {
+    done(err)
+  })
 })
 
 // ================================ SUCCESS CASE =======================================
@@ -78,7 +89,7 @@ describe("User (admin) login ==> POST /login ", () => {
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -101,7 +112,7 @@ describe("Failed User (admin) login - wrong password ==> POST /login ", () => {
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -123,7 +134,7 @@ describe("Failed User (admin) login - username is not found in db ==> POST /logi
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })
@@ -144,7 +155,7 @@ describe("Failed User (admin) login - username and/or password is empty or null 
       })
 
       .catch(err => {
-        console.log(err)
+        done(err)
       })
   })
 })

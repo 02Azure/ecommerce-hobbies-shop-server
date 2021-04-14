@@ -4,6 +4,7 @@ class ProductController {
   static async showAll(req, res, next) {
     try {
       let products = await Product.findAll()
+
       res.status(200).json(products)
     }
 
