@@ -1,8 +1,10 @@
-# E-commerce-server
+# E-commerce-server - Documentation
 * RESTful endpoint for seller product's and customer cart's CRUD operation
 * powered with express and postgres (with sequelize)
 
-## Endpoints
+## Deployed at: https://ecommerce-server-02azure.herokuapp.com/
+
+## Endpoints 
 
 <details>
 <summary>1. POST /register</summary>
