@@ -15,8 +15,10 @@ app.use("/", index)
 
 app.use(errorHandler)
 
-// app.listen(port, () => {
-//   console.log(`App listening at http://localhost:${port}`)
-// })
+if(process.env.NODE_ENV === "production") {
+  app.listen(port, () => {
+    console.log(`App listening at http://localhost:${port}`)
+  })
+}
 
 module.exports = app

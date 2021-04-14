@@ -6,8 +6,6 @@ router.use("/", customerAuthorization)
 
 router.get("/", CartController.showAll)
 router.post("/", CartController.add)
-
-
 // router.get("/:id", CartController.showOne)
 router.patch("/", CartController.editQuantity)
 router.delete("/", CartController.delete)

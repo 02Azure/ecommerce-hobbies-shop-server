@@ -6,6 +6,7 @@ async function authentication(req, res, next) {
 		let result = jwt.verify(req.headers.access_token, process.env.SECRET_CODE || "secret")
 		let loggedUser = await User.findOne({
 			where: {
+        id: result.id,
 				username: result.username
 			}
 		})

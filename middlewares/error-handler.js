@@ -1,6 +1,6 @@
 function errorHandler(err, req, res, next) {
-  console.log(">>>>>>>>>>>", err.name)
-  console.log(err, "<<<<<<<<<<<<<")
+  // console.log(">>>>>>>>>>>", err.name)
+  // console.log(err, "<<<<<<<<<<<<<")
   let code = 500
   let message = "Internal Server Error"
 
@@ -41,7 +41,6 @@ function errorHandler(err, req, res, next) {
     message = "You are not authorized for this action"
   }
   
-
   res.status(code).json({error: message})
 }
 

@@ -5,6 +5,7 @@ const {sequelize} = require("../models")
 const {queryInterface} = sequelize
 const hashPassword = require("../helpers/password-hasher")
 //PENTING: remove contraint dulu jika baru pertama kali di migrate di db test
+//hapus / comment kedua remove constraint jika mau menjalankan tes kedua kalinya/seterusnya 
 
 beforeAll(() => {
   return queryInterface.removeConstraint('Carts', "fkeycart2user", {})
