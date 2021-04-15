@@ -1,8 +1,10 @@
 const router = require("express").Router()
 const CartController = require("../controllers/cart-controller")
 const customerAuthorization = require("../middlewares/customer-authorization")
+const authentication = require("../middlewares/authentication")
 
-router.use("/", customerAuthorization)
+router.use(authentication)
+router.use(customerAuthorization)
 
 router.get("/", CartController.showAll)
 router.post("/", CartController.add)
