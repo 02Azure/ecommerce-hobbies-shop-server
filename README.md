@@ -104,13 +104,6 @@
 
 &nbsp;
 
-**Request Header**
-``` JSON
-{
-  "access_token": "<your access token>"
-}
-```
-
 **Response (200)**
 ``` JSON
 [
@@ -138,20 +131,6 @@
     },
     ...
 ]
-```
-
-**Response (401) (Invalid access token)**
-``` JSON
-{
-  "error": "Invalid access token"
-}
-```
-
-**Response (401) (Using customer user access token)**
-``` JSON
-{
-  "error": "You are not authorized for this action"
-}
 ```
 </details>
 
