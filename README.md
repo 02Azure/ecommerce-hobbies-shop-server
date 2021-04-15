@@ -135,7 +135,6 @@
 </details>
 
 ---
-
 <details>
 <summary>4. POST /products</summary>
 
