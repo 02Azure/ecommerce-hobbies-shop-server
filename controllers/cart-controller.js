@@ -58,7 +58,7 @@ class CartController {
 
       //jika sudah ada, 
       if(user) {
-        req.body.quantity = +user.Products[0].Cart.quantity + +input.quantity
+        req.body.quantity = +user.Products[0].Cart.quantity + input.quantity
         req.body.ProductId = input.ProductId
         CartController.editQuantity(req, res, next)
 

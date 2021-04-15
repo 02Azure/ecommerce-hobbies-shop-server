@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: "Please fill product's quantity"
         },
         min: {
-          args: 1,
+          args: [1],
           msg: "Quantity must be a positive number"
         }
       } 
