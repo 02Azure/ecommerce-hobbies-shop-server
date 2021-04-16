@@ -74,7 +74,8 @@
 ``` JSON
 {
     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJsaWx5bmFubyIsImlhdCI6MTYxNzcwMjYwNX0.qjLvckyJeKDSlYKZDqZiAHqazqiUU_zzFNYdu3uXD08",
-    "username": "lilynano"
+    "username": "lilynano",
+    "role": "admin"
 ```
 
 **Response (400) (id and/or password is empty or null)**
