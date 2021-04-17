@@ -555,4 +555,288 @@
 </details>
 
 ---
+<details>
+
+<summary>12. GET /transactions</summary>
+
+&nbsp;
+
+> View all user's transaction history
+
+&nbsp;
+
+**Request Header**
+``` JSON
+{
+  "access_token": "<your access token>"
+}
+```
+
+**Response (200)**
+``` JSON
+[
+  {
+  "id": 1,
+  "UserId": 4,
+  "purchase_date": "2021-04-17T12:37:50.334Z",
+  "createdAt": "2021-04-17T12:37:50.334Z",
+  "updatedAt": "2021-04-17T12:37:50.334Z",
+  "PurchasedItems": [
+    {
+      "id": 1,
+      "TransactionId": 1,
+      "ProductId": 4,
+      "name": "Ultra Pro 3x3 Binder: Black",
+      "image_url": "https://i.imgur.com/maI7CJq.png",
+      "price": 250000,
+      "category": "accessory",
+      "detail": "Leather cover, with total 360 card slot",
+      "quantity": 1,
+      "createdAt": "2021-04-17T12:37:50.341Z",
+      "updatedAt": "2021-04-17T12:37:50.341Z"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "UserId": 4,
+    "purchase_date": "2021-04-17T13:06:06.927Z",
+    "createdAt": "2021-04-17T13:06:06.927Z",
+    "updatedAt": "2021-04-17T13:06:06.927Z",
+    "PurchasedItems": [
+      {
+        "id": 3,
+        "TransactionId": 2,
+        "ProductId": 2,
+        "name": "Pokeball Leather Deck Case",
+        "image_url": "https://i.imgur.com/IfY0Mj2.jpg",
+        "price": 80000,
+        "category": "accessory",
+        "detail": "High quality deckbox that is enough for 100 large-sized TCG",
+        "quantity": 2,
+        "createdAt": "2021-04-17T13:06:06.934Z",
+        "updatedAt": "2021-04-17T13:06:06.934Z"
+      },
+      {
+        "id": 2,
+        "TransactionId": 2,
+        "ProductId": 4,
+        "name": "Ultra Pro 3x3 Binder: Black",
+        "image_url": "https://i.imgur.com/maI7CJq.png",
+        "price": 250000,
+        "category": "accessory",
+        "detail": "Leather cover, with total 360 card slot",
+        "quantity": 1,
+        "createdAt": "2021-04-17T13:06:06.934Z",
+        "updatedAt": "2021-04-17T13:06:06.934Z"
+      }
+    ]
+  }
+]
+```
+</details>
+
+---
+<details>
+<summary>13. POST /transactions</summary>
+
+&nbsp;
+
+> Make a transaction, will emptying your cart and decreasing product's stock
+
+&nbsp;
+
+**Request Header**
+``` JSON
+{
+  "access_token": "<your access token>"
+}
+```
+
+**Response (201)**
+``` JSON
+[
+  {
+    "id": 6,
+    "TransactionId": 5,
+    "ProductId": 2,
+    "name": "Pokeball Leather Deck Case",
+    "image_url": "https://i.imgur.com/IfY0Mj2.jpg",
+    "price": 80000,
+    "category": "accessory",
+    "detail": "High quality deckbox that is enough for 100 large-sized TCG",
+    "quantity": 3,
+    "createdAt": "2021-04-17T13:14:47.134Z",
+    "updatedAt": "2021-04-17T13:14:47.134Z"
+  }
+]
+```
+
+**Response (400) (Cart is empty)**
+``` JSON
+{
+  "error": "Your cart is empty"
+}
+```
+</details>
+
+
+---
+<details>
+
+<summary>12. GET /transactions</summary>
+
+&nbsp;
+
+> View all user's transaction history
+
+&nbsp;
+
+**Request Header**
+``` JSON
+{
+  "access_token": "<your access token>"
+}
+```
+
+**Response (200)**
+``` JSON
+[
+  {
+  "id": 1,
+  "UserId": 4,
+  "purchase_date": "2021-04-17T12:37:50.334Z",
+  "createdAt": "2021-04-17T12:37:50.334Z",
+  "updatedAt": "2021-04-17T12:37:50.334Z",
+  "PurchasedItems": [
+    {
+      "id": 1,
+      "TransactionId": 1,
+      "ProductId": 4,
+      "name": "Ultra Pro 3x3 Binder: Black",
+      "image_url": "https://i.imgur.com/maI7CJq.png",
+      "price": 250000,
+      "category": "accessory",
+      "detail": "Leather cover, with total 360 card slot",
+      "quantity": 1,
+      "createdAt": "2021-04-17T12:37:50.341Z",
+      "updatedAt": "2021-04-17T12:37:50.341Z"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "UserId": 4,
+    "purchase_date": "2021-04-17T13:06:06.927Z",
+    "createdAt": "2021-04-17T13:06:06.927Z",
+    "updatedAt": "2021-04-17T13:06:06.927Z",
+    "PurchasedItems": [
+      {
+        "id": 3,
+        "TransactionId": 2,
+        "ProductId": 2,
+        "name": "Pokeball Leather Deck Case",
+        "image_url": "https://i.imgur.com/IfY0Mj2.jpg",
+        "price": 80000,
+        "category": "accessory",
+        "detail": "High quality deckbox that is enough for 100 large-sized TCG",
+        "quantity": 2,
+        "createdAt": "2021-04-17T13:06:06.934Z",
+        "updatedAt": "2021-04-17T13:06:06.934Z"
+      },
+      {
+        "id": 2,
+        "TransactionId": 2,
+        "ProductId": 4,
+        "name": "Ultra Pro 3x3 Binder: Black",
+        "image_url": "https://i.imgur.com/maI7CJq.png",
+        "price": 250000,
+        "category": "accessory",
+        "detail": "Leather cover, with total 360 card slot",
+        "quantity": 1,
+        "createdAt": "2021-04-17T13:06:06.934Z",
+        "updatedAt": "2021-04-17T13:06:06.934Z"
+      }
+    ]
+  }
+]
+```
+</details>
+
+---
+<details>
+<summary>14. GET /transactions/:id</summary>
+
+&nbsp;
+
+> View the transaction with matched Id
+
+&nbsp;
+
+**Request Header**
+``` JSON
+{
+  "access_token": "<your access token>"
+}
+```
+
+**Request Parameters**
+``` JSON
+{
+  "id": "<Transaction id that you want to view>"
+}
+```
+
+**Response (200)**
+``` JSON
+{
+  "id": 2,
+  "UserId": 4,
+  "purchase_date": "2021-04-17T13:06:06.927Z",
+  "createdAt": "2021-04-17T13:06:06.927Z",
+  "updatedAt": "2021-04-17T13:06:06.927Z",
+  "PurchasedItems": [
+    {
+      "id": 2,
+      "TransactionId": 2,
+      "ProductId": 4,
+      "name": "Ultra Pro 3x3 Binder: Black",
+      "image_url": "https://i.imgur.com/maI7CJq.png",
+      "price": 250000,
+      "category": "accessory",
+      "detail": "Leather cover, with total 360 card slot",
+      "quantity": 1,
+      "createdAt": "2021-04-17T13:06:06.934Z",
+      "updatedAt": "2021-04-17T13:06:06.934Z"
+    },
+    {
+      "id": 3,
+      "TransactionId": 2,
+      "ProductId": 2,
+      "name": "Pokeball Leather Deck Case",
+      "image_url": "https://i.imgur.com/IfY0Mj2.jpg",
+      "price": 80000,
+      "category": "accessory",
+      "detail": "High quality deckbox that is enough for 100 large-sized TCG",
+      "quantity": 2,
+      "createdAt": "2021-04-17T13:06:06.934Z",
+      "updatedAt": "2021-04-17T13:06:06.934Z"
+    }
+  ]
+}
+```
+**Response (401)**
+``` JSON
+{
+  "error": "You are not authorized for this action"
+}
+```
+
+**Response (404 transaction with that id is not found)**
+``` JSON
+{
+  "error": "Transaction with this id is not found"
+}
+```
+</details>
 

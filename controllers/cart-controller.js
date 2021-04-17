@@ -19,27 +19,12 @@ class CartController {
     }
   }
 
-  // static async showOne(req, res, next) {
-  //   try {
-  //     let foundCart = Cart.findByPk(+req.params.id)
-
-  //     if(!foundCart) throw {name: "CartNotFound"}
-
-  //     res.status(200).json(foundCart)
-  //   }
-
-  //   catch(err) {
-  //     next(err)
-  //   }
-  // }
-
   static async add(req, res, next) {
     let input = {
       UserId: +req.user.id,
       ProductId: +req.body.ProductId,
       quantity: +req.body.quantity
     }
-
     try {
       //cek apakah produk yang mau di add itu eksis di db
       let product = await Product.findByPk(input.ProductId)
