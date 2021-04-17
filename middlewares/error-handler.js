@@ -28,6 +28,14 @@ function errorHandler(err, req, res, next) {
     code = 404
     message = `Cart with this product id is not found` 
 
+  } else if(err.name === "NoProductInCart") {
+    code = 400
+    message = `Your cart is empty` 
+
+  } else if(err.name === "TransactionNotFound") {
+    code = 404
+    message = `Transaction with this id is not found` 
+
   } else if(err.name === "InvalidQuantity") {
     code = 400
     message = `You can't have a quantity with more than product's stock value` 
