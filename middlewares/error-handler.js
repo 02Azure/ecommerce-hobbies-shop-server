@@ -32,6 +32,12 @@ function errorHandler(err, req, res, next) {
     code = 400
     message = `Your cart is empty` 
 
+  } else if(err.name === "OutOfStockPurchase") {
+    code = 400
+    message = err.products
+    let message1 = `The following product's stock are less than your cart's quantity, change your cart's quantity accordingly or remove it from your cart` 
+    message.unshift(message1)
+
   } else if(err.name === "TransactionNotFound") {
     code = 404
     message = `Transaction with this id is not found` 

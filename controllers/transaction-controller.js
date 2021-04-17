@@ -31,11 +31,19 @@ class TransController {
         }
       })
       
-      if(user.Products.length) {
-        let input = {
-          UserId: +req.user.id,
-          purchase_date: new Date()
+        let outOfStockProducts = user.Products.filter(product => product.Cart.quantity > product.stock ) 
+
+        if(outOfStockProducts.length) {
+          let productNames = outOfStockProducts.map(product => product.name)
+
+          throw {name: "OutOfStockPurchase", products: productNames}
         }
+
+        if(user.Products.length) {
+          let input = {
+            UserId: +req.user.id,
+            purchase_date: new Date()
+          }
 
         let newTransaction = await Transaction.create(input)
 
@@ -52,6 +60,7 @@ class TransController {
             detail: product.detail,
             quantity: product.Cart.quantity 
           }
+
 
           input.push(purchasedItem)
         })
